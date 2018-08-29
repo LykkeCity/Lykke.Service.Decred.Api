@@ -11,14 +11,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\lib\Decred.BlockExplorer\Decred.BlockExplorer.csproj">
-      <Project>{621E3109-186B-417C-9002-2E1DF0ED124A}</Project>
-      <Name>Decred.BlockExplorer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\lib\Paymetheus.Decred\Paymetheus.Decred.csproj">
-      <Project>{72EB130F-0DA1-472F-8022-C637B36801BE}</Project>
-      <Name>Paymetheus.Decred</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Lykke.Service.Decred.Api.Services\Lykke.Service.Decred.Api.Services.csproj" />
   </ItemGroup>
 </Project>
