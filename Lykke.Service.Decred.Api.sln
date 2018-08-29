@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.Decred.Api.Services.Test", "tests\Lykke.Service.Decred.Api.Services.Test\Lykke.Service.Decred.Api.Services.Test.csproj", "{879FE766-A3E9-45E8-9DD6-56845AFDB03A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.Decred.Api.Services", "src\Lykke.Service.Decred.Api.Services\Lykke.Service.Decred.Api.Services.csproj", "{42D5438D-7236-4546-BE74-BD1EBC51745C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.Decred.Api.Common", "src\Lykke.Service.Decred.Api.Common\Lykke.Service.Decred.Api.Common.csproj", "{F6290815-D2C0-4AB4-AACE-ADA3E64ACA24}"
@@ -23,16 +21,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcrdClient", "src\DcrdClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Decred.BlockExplorer", "src\Decred.BlockExplorer\Decred.BlockExplorer.csproj", "{22646D5D-47DE-4707-9CF1-69BAF971236E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.Decred.Api.Services.Tests", "tests\Lykke.Service.Decred.Api.Services.Tests\Lykke.Service.Decred.Api.Services.Tests.csproj", "{97769594-1920-4668-BE7A-5112284D4E40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{879FE766-A3E9-45E8-9DD6-56845AFDB03A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{879FE766-A3E9-45E8-9DD6-56845AFDB03A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{879FE766-A3E9-45E8-9DD6-56845AFDB03A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{879FE766-A3E9-45E8-9DD6-56845AFDB03A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42D5438D-7236-4546-BE74-BD1EBC51745C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42D5438D-7236-4546-BE74-BD1EBC51745C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42D5438D-7236-4546-BE74-BD1EBC51745C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +53,10 @@ Global
 		{22646D5D-47DE-4707-9CF1-69BAF971236E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22646D5D-47DE-4707-9CF1-69BAF971236E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22646D5D-47DE-4707-9CF1-69BAF971236E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97769594-1920-4668-BE7A-5112284D4E40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97769594-1920-4668-BE7A-5112284D4E40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97769594-1920-4668-BE7A-5112284D4E40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97769594-1920-4668-BE7A-5112284D4E40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
