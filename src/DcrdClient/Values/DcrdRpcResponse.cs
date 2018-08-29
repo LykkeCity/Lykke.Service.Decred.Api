@@ -6,7 +6,7 @@
         public string Jsonrpc { get; set; }
         public T Result { get; set; }
         public DcrdRpcError Error { get; set; }
-        
+
         public class DcrdRpcError
         {
             public int? Code { get; set; }

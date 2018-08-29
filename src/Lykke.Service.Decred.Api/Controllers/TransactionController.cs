@@ -28,7 +28,7 @@ namespace Lykke.Service.Decred.Api.Controllers
             _txBuilderService = txBuilderService;
             _txBroadcastService = txBroadcastService;
         }
-        
+
         [HttpGet("api/capabilities")]
         public CapabilitiesResponse GetCapabilities()
         {
@@ -39,7 +39,7 @@ namespace Lykke.Service.Decred.Api.Controllers
                 IsTransactionsRebuildingSupported = false
             };
         }
-        
+
         [HttpPost("api/transactions/single")]
         public async Task<IActionResult> BuildSingleTransaction([FromBody] BuildSingleTransactionRequest request)
         {
@@ -47,7 +47,7 @@ namespace Lykke.Service.Decred.Api.Controllers
             const int feeFactor = 1;
             return await BuildTxInternal(request, feeFactor);
         }
-        
+
         private async Task<IActionResult> BuildTxInternal(BuildSingleTransactionRequest request, decimal feeFactor)
         {
             _addressValidationService.AssertValid(request?.FromAddress);
@@ -78,8 +78,14 @@ namespace Lykke.Service.Decred.Api.Controllers
                     transactionContext = (string) null
                 });
             }
+
+            catch (BusinessException ex) when (ex.Reason == ErrorReason.DuplicateRecord)
+            {
+                // If this operationid was already broadcast, return 409 conflict.
+                return await GenericErrorResponse(ex, request.OperationId, HttpStatusCode.Conflict);
+            }
         }
-        
+
         [HttpPost("api/transactions/broadcast")]
         public async Task<IActionResult> Broadcast([FromBody] BroadcastTransactionRequest request)
         {
@@ -96,13 +102,13 @@ namespace Lykke.Service.Decred.Api.Controllers
                 return await GenericErrorResponse(ex, request.OperationId, HttpStatusCode.Conflict);
             }
         }
-        
+
         [HttpGet("api/transactions/broadcast/single/{operationId}")]
         public async Task<IActionResult> GetBroadcastedSingleTx(Guid operationId)
         {
             if(operationId == Guid.Empty)
                 throw new BusinessException(ErrorReason.BadRequest, "Invalid operation id");
-                
+
             try
             {
                 // Retrieves a broadcasted transaction
@@ -111,7 +117,7 @@ namespace Lykke.Service.Decred.Api.Controllers
             }
             catch (BusinessException e) when (e.Reason == ErrorReason.RecordNotFound)
             {
-                return NotFound();
+                return NoContent();
             }
 
             catch (Exception e)
@@ -128,7 +134,7 @@ namespace Lykke.Service.Decred.Api.Controllers
 
             try
             {
-                await _txBroadcastService.UnsubscribeBroadcastedTx(operationId);                
+                await _txBroadcastService.UnsubscribeBroadcastedTx(operationId);
                 return Ok();
             }
             catch (BusinessException e) when(e.Reason == ErrorReason.RecordNotFound)
@@ -140,7 +146,7 @@ namespace Lykke.Service.Decred.Api.Controllers
                 return await GenericErrorResponse(e, operationId, HttpStatusCode.InternalServerError);
             }
         }
-        
+
         private async Task<JsonResult> GenericErrorResponse(Exception ex, Guid operationId, HttpStatusCode status)
         {
             Response.StatusCode = (int) status;
@@ -155,7 +161,7 @@ namespace Lykke.Service.Decred.Api.Controllers
         {
             return StatusCode((int) HttpStatusCode.NotImplemented);
         }
-        
+
         [HttpPost("api/transactions/many-outputs")]
         public IActionResult BuildManyOutputsTransaction([FromBody] BuildTransactionWithManyOutputsRequest request)
         {
@@ -173,13 +179,13 @@ namespace Lykke.Service.Decred.Api.Controllers
         {
             return StatusCode((int) HttpStatusCode.NotImplemented);
         }
-        
+
         [HttpGet("api/transactions/broadcast/many-outputs/{operationId}")]
         public IActionResult GetBroadcastedManyOutputsTx(Guid operationId)
         {
             return StatusCode((int) HttpStatusCode.NotImplemented);
         }
-        
+
         #endregion
     }
 }

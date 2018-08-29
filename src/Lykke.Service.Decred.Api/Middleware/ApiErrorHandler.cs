@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using DcrdClient;
 using Lykke.Service.Decred.Api.Common;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace Lykke.Service.Decred.Api.Middleware
-{    
+{
     public class ApiErrorHandler
     {
         private readonly RequestDelegate _next;
@@ -47,7 +48,12 @@ namespace Lykke.Service.Decred.Api.Middleware
             {
                 await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
             }
-            
+
+            catch (DcrdException ex)
+            {
+                await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError);
+            }
+
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError);
