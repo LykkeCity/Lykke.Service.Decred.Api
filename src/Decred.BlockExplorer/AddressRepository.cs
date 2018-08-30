@@ -39,7 +39,7 @@ namespace Decred.BlockExplorer
                 from unnest(@addresses) user_address
                 left join addresses on user_address = addresses.address
                 left join transactions on transactions.tx_hash = addresses.tx_hash
-                where block_height <= @blockHeight or block_height is null
+                where is_valid and is_mainchain and (block_height <= @blockHeight or block_height is null)
                 group by user_address";
 
             var results = await _dbConnection.QueryAsync<AddressBalance>(query, new { blockHeight, addresses });
