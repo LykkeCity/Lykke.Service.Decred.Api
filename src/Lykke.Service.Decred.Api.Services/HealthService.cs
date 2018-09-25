@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Common.Log;
 using DcrdClient;
 using Decred.BlockExplorer;
-using Lykke.Service.Decred.Api.Common.Domain.Health;
+using Lykke.Common.Health;
 using Lykke.Service.Decred.Api.Common.Services;
 
 namespace Lykke.Service.Decred.Api.Services
@@ -18,7 +18,7 @@ namespace Lykke.Service.Decred.Api.Services
         private readonly IBlockRepository _blockRepository;
 
         public HealthService(
-            ILog log, 
+            ILog log,
             IDcrdClient client,
             IBlockRepository blockRepository)
         {
@@ -26,7 +26,7 @@ namespace Lykke.Service.Decred.Api.Services
             _dcrdClient = client;
             _blockRepository = blockRepository;
         }
-        
+
         public string GetHealthViolationMessage()
         {
             return null;
@@ -39,7 +39,7 @@ namespace Lykke.Service.Decred.Api.Services
                 var dcrdIssues = await GetDcrdHealthIssues();
                 if (dcrdIssues.Any())
                     return dcrdIssues;
-            
+
                 var dcrdataIssues = await GetDcrdataHealthIssues();
                 if (dcrdataIssues.Any())
                     return dcrdataIssues;
@@ -49,13 +49,13 @@ namespace Lykke.Service.Decred.Api.Services
                 await _log.WriteErrorAsync(nameof(HealthService), nameof(GetDcrdataHealthIssues), "", e);
                 return new[]
                 {
-                    HealthIssue.Create("UnknownHealthIssue", e.Message), 
+                    HealthIssue.Create("UnknownHealthIssue", e.Message),
                 };
             }
 
             return Enumerable.Empty<HealthIssue>();
         }
-        
+
         private async Task<HealthIssue[]> GetDcrdHealthIssues()
         {
             try
@@ -68,7 +68,7 @@ namespace Lykke.Service.Decred.Api.Services
                 await _log.WriteErrorAsync(nameof(HealthService), nameof(GetDcrdHealthIssues), "", e);
                 return new[]
                 {
-                    HealthIssue.Create("DcrdPingFailure", 
+                    HealthIssue.Create("DcrdPingFailure",
                         $"Failed to ping dcrd.  {e.Message}".Trim())
                 };
             }
@@ -81,34 +81,34 @@ namespace Lykke.Service.Decred.Api.Services
             {
                 return new []
                 {
-                    HealthIssue.Create("NoDcrdataBestBlock", 
-                        "No blocks found in dcrdata database"), 
+                    HealthIssue.Create("NoDcrdataBestBlock",
+                        "No blocks found in dcrdata database"),
                 };
             }
-            
+
             // Get dcrd block height.  If dcrdata out of sync, raise failure.
             var dcrdTopBlock = await _dcrdClient.GetBestBlockAsync();
             if (dcrdTopBlock == null)
             {
                 return new []
                 {
-                    HealthIssue.Create("NoDcrdBestBlock", 
-                        "No blocks found with dcrd getbestblock"), 
+                    HealthIssue.Create("NoDcrdBestBlock",
+                        "No blocks found with dcrd getbestblock"),
                 };
             }
 
-            // If the difference in block height 
+            // If the difference in block height
             const int unsyncedThreshold = 3;
             var isUnsynced = Math.Abs(dcrdTopBlock.Height - dcrdataTopBlock.Height) > unsyncedThreshold;
             if (isUnsynced)
             {
                 return new []
                 {
-                    HealthIssue.Create("BlockHeightOutOfSync", 
-                        $"dcrd at blockheight {dcrdTopBlock.Height} while dcrdata at blockheight {dcrdataTopBlock.Height}"), 
+                    HealthIssue.Create("BlockHeightOutOfSync",
+                        $"dcrd at blockheight {dcrdTopBlock.Height} while dcrdata at blockheight {dcrdataTopBlock.Height}"),
                 };
             }
-            
+
             return new HealthIssue[0];
         }
     }
