@@ -14,13 +14,13 @@ namespace DcrdClient
     {
         private readonly string _apiUrl;
         private readonly int _minConfirmations;
-        private readonly HttpMessageHandler _httpMessageHandler;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public DcrdHttpClient(string apiUrl, HttpMessageHandler httpMessageHandler, int minConfirmations = 6)
+        public DcrdHttpClient(DcrdHttpConfig config, IHttpClientFactory httpClientFactory)
         {
-            _apiUrl = apiUrl;
-            _httpMessageHandler = httpMessageHandler;
-            _minConfirmations = minConfirmations;
+            _apiUrl = config.ApiUrl;
+            _httpClientFactory = httpClientFactory;
+            _minConfirmations = config.MinConfirmations;
         }
 
         private static DcrdRpcResponse<T> ParseResponse<T>(string responseBody)
@@ -37,7 +37,7 @@ namespace DcrdClient
 
         public async Task<DcrdRpcResponse<T>> PerformAsync<T>(string method, params object[] parameters)
         {
-            using (var httpClient = new HttpClient(_httpMessageHandler, false))
+            using (var httpClient = _httpClientFactory.CreateClient())
             {
                 var request = new
                 {
