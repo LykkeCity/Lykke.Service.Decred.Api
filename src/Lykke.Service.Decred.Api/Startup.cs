@@ -182,7 +182,6 @@ namespace Lykke.Service.Decred.Api
 
         private async Task StartApplication()
         {
-            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             await _log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Started");
         }
 
