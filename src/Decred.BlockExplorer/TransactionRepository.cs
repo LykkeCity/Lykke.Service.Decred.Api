@@ -176,26 +176,26 @@ namespace Decred.BlockExplorer
 
             // Check if an outpoint is the input to another known transaction.
             bool IsSpent(string txId, TxVout txOut) =>
-                transactions.SelectMany(tx => tx.vin)
-                    .Any(vin => vin.txid == txId && vin.vout == txOut.n);
+                transactions.SelectMany(tx => tx.Vin)
+                    .Any(vin => vin.TxId == txId && vin.Vout == txOut.N);
 
             // Filter out transactions that have a spent outpoint
             // Only grab transactions that spend to the provided address.
             return (
                 from transaction in transactions
-                where transaction.confirmations == 0
-                from txOut in transaction.vout
-                where txOut.scriptPubKey.addresses.Contains(address)
-                where !IsSpent(transaction.txid, txOut)
+                where transaction.Confirmations == 0
+                from txOut in transaction.Vout
+                where txOut.ScriptPubKey.Addresses.Contains(address)
+                where !IsSpent(transaction.TxId, txOut)
                 select new UnspentTxOutput
                 {
                     BlockHeight = 0,
                     BlockIndex = 4294967295,
-                    Hash = transaction.txid,
-                    OutputIndex = (uint) txOut.n,
-                    OutputValue = (long) (txOut.value * (decimal) Math.Pow(10, 8)),
-                    OutputVersion = txOut.version,
-                    PkScript = HexUtil.ToByteArray(txOut.scriptPubKey.hex),
+                    Hash = transaction.TxId,
+                    OutputIndex = (uint) txOut.N,
+                    OutputValue = (long) (txOut.Value * (decimal) Math.Pow(10, 8)),
+                    OutputVersion = txOut.Version,
+                    PkScript = HexUtil.ToByteArray(txOut.ScriptPubKey.Hex),
                     Tree = 0
                 }).ToArray();
         }

@@ -12,13 +12,6 @@ using Paymetheus.Decred.Wallet;
 
 namespace Lykke.Service.Decred.Api.Services
 {
-    public interface ITransactionBuilder
-    {
-        Task<BuildTransactionResponse> BuildSingleTransactionAsync(
-            BuildSingleTransactionRequest request,
-            decimal feeFactor);
-    }
-    
     public class TransactionBuilder : ITransactionBuilder
     {
         private readonly ITransactionFeeService _feeService;
@@ -26,7 +19,7 @@ namespace Lykke.Service.Decred.Api.Services
         private readonly INosqlRepo<BroadcastedOutpoint> _broadcastedOutpointRepo;
 
         public TransactionBuilder(
-            ITransactionFeeService feeService, 
+            ITransactionFeeService feeService,
             ITransactionRepository txRepo,
             INosqlRepo<BroadcastedOutpoint> broadcastedOutpointRepo)
         {
@@ -39,7 +32,7 @@ namespace Lykke.Service.Decred.Api.Services
         {
             return await _broadcastedOutpointRepo.GetAsync(outpoint.ToString()) != null;
         }
-        
+
         /// <summary>
         /// Retrieves all utxos for a single address found in dcrdata's db + mempool.
         /// Performs basic checking to prevent double-spending of mempool transactions.
@@ -49,7 +42,7 @@ namespace Lykke.Service.Decred.Api.Services
         private async Task<IEnumerable<Transaction.Input>> GetUtxosForAddress(string address)
         {
             const uint sequence = uint.MaxValue;
-            
+
             // Grab transactions from dcrdata + the mempool.
             var confirmedResults = await _txRepo.GetConfirmedUtxos(address);
             var mempoolResults = await _txRepo.GetMempoolUtxos(address);
@@ -60,10 +53,10 @@ namespace Lykke.Service.Decred.Api.Services
                 .GroupBy(r => new { r.Hash, r.OutputIndex })
                 .Select(g => g.First())
                 .ToArray();
-            
+
             // Get all unspent transaction outputs to address
             // and map as inputs to new transaction
-            return 
+            return
                 from output in allUtxos
                 let txHash = new Blake256Hash(HexUtil.ToByteArray(output.Hash).Reverse().ToArray())
                 let outpoint = new Transaction.OutPoint(txHash, output.OutputIndex, output.Tree)
@@ -115,7 +108,7 @@ namespace Lykke.Service.Decred.Api.Services
             var changeAddress = Address.Decode(request.FromAddress);
             var toAddress = Address.Decode(request.ToAddress);
             var allInputs = (await GetUtxosForAddress(request.FromAddress)).ToList();
-            
+
             long estFee = 0;
             long totalSpent = 0;
             var consumedInputs = new List<Transaction.Input>();
@@ -128,11 +121,11 @@ namespace Lykke.Service.Decred.Api.Services
                     var changeCount = calculateWithChange ? 1 : 0;
                     fee = _feeService.CalculateFee(feePerKb, consumedInputs.Count, numOutputs + changeCount, feeFactor);
                     var estAmount = amount + (request.IncludeFee ? 0 : fee);
-                    
+
                     if (totalSpent < estAmount) return false;
                     if (totalSpent == estAmount) return true;
                     if (totalSpent > estAmount && calculateWithChange) return true;
-                    
+
                     // Loop one more time but make sure change is accounted for this time.
                     if (totalSpent > estAmount) calculateWithChange = true;
                 }
@@ -152,11 +145,11 @@ namespace Lykke.Service.Decred.Api.Services
                 if (HasEnoughInputs(out estFee))
                     break;
             }
-                        
+
             // If all inputs do not have enough value to fund the transaction.
             if(totalSpent < amount + (request.IncludeFee ? 0 : estFee))
                 throw new BusinessException(ErrorReason.NotEnoughBalance, "Address balance too low");
-            
+
             // The fee either comes from the change or the sent amount
             var send = amount - (request.IncludeFee ? estFee : 0 );
             var change = (totalSpent - amount) - (request.IncludeFee ? 0 : estFee);
@@ -178,12 +171,12 @@ namespace Lykke.Service.Decred.Api.Services
 
             var newTx = new Transaction(
                 Transaction.SupportedVersion,
-                consumedInputs.ToArray(), 
-                outputs, 
-                lockTime, 
+                consumedInputs.ToArray(),
+                outputs,
+                lockTime,
                 expiry
             );
-            
+
             return new BuildTransactionResponse
             {
                 TransactionContext = HexUtil.FromByteArray(newTx.Serialize())

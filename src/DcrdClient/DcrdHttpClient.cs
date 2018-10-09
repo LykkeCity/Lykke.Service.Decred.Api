@@ -37,33 +37,32 @@ namespace DcrdClient
 
         public async Task<DcrdRpcResponse<T>> PerformAsync<T>(string method, params object[] parameters)
         {
-            using (var httpClient = _httpClientFactory.CreateClient())
+            var httpClient = _httpClientFactory.CreateClient();
+
+            var request = new
             {
-                var request = new
-                {
-                    jsonrpc = "1.0",
-                    id = "0",
-                    method = method,
-                    @params = parameters
-                };
+                jsonrpc = "1.0",
+                id = "0",
+                method = method,
+                @params = parameters
+            };
 
-                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                var response = await httpClient.PostAsync(_apiUrl, content);
-                var responseString = await response.Content.ReadAsStringAsync();
+            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(_apiUrl, content);
+            var responseString = await response.Content.ReadAsStringAsync();
 
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                    throw new DcrdException(responseString);
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                throw new DcrdException(responseString);
 
-                var deserializedResponse = ParseResponse<T>(responseString);
+            var deserializedResponse = ParseResponse<T>(responseString);
 
-                if (deserializedResponse == null)
-                    throw new DcrdException($"Failed to deserialize dcrd response: {responseString}");
+            if (deserializedResponse == null)
+                throw new DcrdException($"Failed to deserialize dcrd response: {responseString}");
 
-                if (deserializedResponse.Error != null)
-                    throw new DcrdException(deserializedResponse.Error.Message);
+            if (deserializedResponse.Error != null)
+                throw new DcrdException(deserializedResponse.Error.Message);
 
-                return deserializedResponse;
-            }
+            return deserializedResponse;
         }
 
         public async Task<DcrdRpcResponse<string>> PingAsync()

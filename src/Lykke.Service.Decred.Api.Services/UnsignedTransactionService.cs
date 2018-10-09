@@ -7,13 +7,6 @@ using Newtonsoft.Json;
 
 namespace Lykke.Service.Decred.Api.Services
 {
-    public interface IUnsignedTransactionService
-    {
-        Task<BuildTransactionResponse> BuildSingleTransactionAsync(
-            BuildSingleTransactionRequest request,
-            decimal feeFactor);
-    }
-
     public class UnsignedTransactionService : IUnsignedTransactionService
     {
         private readonly ITransactionBuilder _builder;
