@@ -12,8 +12,8 @@ namespace Lykke.Service.Decred.Api.Common.Entity
         public string Address
         {
             get { return _address; }
-            set 
-            { 
+            set
+            {
                 _address = value;
                 RowKey = value;
             }
@@ -22,7 +22,6 @@ namespace Lykke.Service.Decred.Api.Common.Entity
         public ObservableWalletEntity()
         {
             PartitionKey = "ByAddress";
-            RowKey = Address;
         }
     }
 }
