@@ -16,7 +16,7 @@ namespace Lykke.Service.Decred.Api.Repository
         private const int InvalidRequestStatus = 500;
 
         private readonly INoSQLTableStorage<T> _azureRepo;
-        
+
         public AzureRepo(INoSQLTableStorage<T> azureRepo)
         {
             _azureRepo = azureRepo;
@@ -29,10 +29,10 @@ namespace Lykke.Service.Decred.Api.Repository
                 RowKey = key,
                 PartitionKey = "ByRowKey"
             };
-            
+
             return await _azureRepo.RecordExistsAsync(t);
         }
-        
+
         public async Task<T> GetAsync(string key)
         {
             return await _azureRepo.GetDataAsync("ByRowKey", key);
@@ -54,7 +54,7 @@ namespace Lykke.Service.Decred.Api.Repository
             }
             catch (StorageException e) when (e.RequestInformation.HttpStatusCode == DuplicateRecordStatus)
             {
-                throw new BusinessException(ErrorReason.DuplicateRecord, $"{typeof(T)} already being observed", e);
+                throw new BusinessException(ErrorReason.DuplicateRecord, $"{typeof(T)} already exists", e);
             }
             catch (StorageException e) when (e.RequestInformation.HttpStatusCode == InvalidRequestStatus)
             {
@@ -73,7 +73,7 @@ namespace Lykke.Service.Decred.Api.Repository
             {
                 throw new BusinessException(ErrorReason.RecordNotFound, $"{typeof(T)} is not being observed", ex);
             }
-            
+
             catch (StorageException e) when (e.RequestInformation.HttpStatusCode == InvalidRequestStatus)
             {
                 throw new BusinessException(ErrorReason.BadRequest, $"{typeof(T)} Bad request", e);
@@ -88,7 +88,7 @@ namespace Lykke.Service.Decred.Api.Repository
             }
             catch (Exception ex)
             {
-                throw new BusinessException(ErrorReason.BadRequest, 
+                throw new BusinessException(ErrorReason.BadRequest,
                     $"Invalid take or continuation token", ex);
             }
         }
