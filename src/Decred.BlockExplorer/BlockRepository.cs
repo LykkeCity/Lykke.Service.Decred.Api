@@ -5,15 +5,6 @@ using Dapper;
 
 namespace Decred.BlockExplorer
 {
-    public interface IBlockRepository
-    {
-        /// <summary>
-        /// Returns the highest known valid block's height.
-        /// </summary>
-        /// <returns>block height</returns>
-        Task<Block> GetHighestBlock();
-    }
-    
     public class BlockRepository : IBlockRepository
     {
         private readonly IDbConnection _dbConnection;
@@ -28,10 +19,5 @@ namespace Decred.BlockExplorer
             var result = await _dbConnection.QueryAsync<Block>("select max(height) as Height from blocks");
             return result.First();
         }
-    }
-
-    public class Block
-    {
-        public long Height { get; set; }
     }
 }
