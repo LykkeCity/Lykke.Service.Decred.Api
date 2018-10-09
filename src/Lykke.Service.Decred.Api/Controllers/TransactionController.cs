@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Common;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.Decred.Api.Common;
@@ -64,7 +65,7 @@ namespace Lykke.Service.Decred.Api.Controllers
                 Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return Json(new
                 {
-                    errorCode = "amountIsTooSmall",
+                    errorCode = BlockchainErrorCode.AmountIsTooSmall,
                     transactionContext = (string) null
                 });
             }
@@ -74,7 +75,7 @@ namespace Lykke.Service.Decred.Api.Controllers
                 Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return Json(new
                 {
-                    errorCode = "notEnoughBalance",
+                    errorCode = BlockchainErrorCode.NotEnoughBalance,
                     transactionContext = (string) null
                 });
             }
