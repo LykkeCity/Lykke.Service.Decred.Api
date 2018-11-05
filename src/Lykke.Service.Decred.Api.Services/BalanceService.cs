@@ -8,9 +8,9 @@ using Lykke.Service.Decred.Api.Common;
 using Lykke.Service.Decred.Api.Common.Entity;
 
 namespace Lykke.Service.Decred.Api.Services
-{    
+{
     public class BalanceService
-    {        
+    {
         private readonly INosqlRepo<ObservableWalletEntity> _observableWalletRepository;
         private readonly IAddressRepository _addressRepository;
         private readonly IDcrdClient _dcrdClient;
@@ -27,10 +27,10 @@ namespace Lykke.Service.Decred.Api.Services
             _dcrdClient = dcrdClient;
             _addressValidator = addressValidator;
         }
-        
+
         /// <summary>
         /// Adds the given address to the observation repository.
-        /// 
+        ///
         /// If the address is already in the repository, a BusinessException is thrown.
         /// </summary>
         /// <param name="address"></param>
@@ -39,7 +39,7 @@ namespace Lykke.Service.Decred.Api.Services
         {
             if (!_addressValidator.IsValid(address))
                 throw new BusinessException(ErrorReason.InvalidAddress, "Address is invalid");
-            
+
             await _observableWalletRepository.InsertAsync(new ObservableWalletEntity { Address = address }, false);
         }
 
@@ -67,11 +67,11 @@ namespace Lykke.Service.Decred.Api.Services
         /// <returns></returns>
         public async Task<PaginationResponse<WalletBalanceContract>> GetBalancesAsync(int take, string continuation)
         {
-            var result = await _observableWalletRepository.GetDataWithContinuationTokenAsync(take, continuation);            
+            var result = await _observableWalletRepository.GetDataWithContinuationTokenAsync(take, continuation);
             var addresses = result.Entities.Select(e => e.Address).ToArray();
             var blockHeight = await _dcrdClient.GetMaxConfirmedBlockHeight();
-            
-            var balances = 
+
+            var balances =
                (from balance in await _addressRepository.GetAddressBalancesAsync(addresses, blockHeight)
                 where balance.Balance > 0
                 select new WalletBalanceContract
@@ -81,9 +81,9 @@ namespace Lykke.Service.Decred.Api.Services
                     Address = balance.Address,
                     Balance = balance.Balance.ToString()
                 }).ToArray();
-            
-            return new PaginationResponse<WalletBalanceContract> { 
-                Items = balances.ToArray(), 
+
+            return new PaginationResponse<WalletBalanceContract> {
+                Items = balances.ToArray(),
                 Continuation = result.ContinuationToken
             };
         }

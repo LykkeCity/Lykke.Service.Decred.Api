@@ -15,14 +15,12 @@ namespace Lykke.Service.Decred.Api.Services.Test
     public class TransactionBuilderTests
     {
         private readonly Mock<ITransactionRepository> _mockTxRepo;
-        private readonly Mock<INosqlRepo<BroadcastedOutpoint>> _mockBroadcastedOutpointRepo;
         private readonly Mock<IDcrdClient> _mockDcrdClient;
-        
+
         public TransactionBuilderTests()
         {
             _mockDcrdClient = new Mock<IDcrdClient>();
             _mockTxRepo = new Mock<ITransactionRepository>();
-            _mockBroadcastedOutpointRepo = new Mock<INosqlRepo<BroadcastedOutpoint>>();
         }
 
         [Fact]
@@ -30,7 +28,7 @@ namespace Lykke.Service.Decred.Api.Services.Test
         {
             var fromAddr = "Tso2MVTUeVrjHTBFedFhiyM7yVTbieqp91h";
             var toAddr = "TsntCvtbzaDtx4DwGehWcM3Ydb6Muc79YbV";
-            
+
             // Send 1 decred out of 2 total
             var amountToSend = 100000000;
             var unspentOutput = new UnspentTxOutput()
@@ -44,20 +42,17 @@ namespace Lykke.Service.Decred.Api.Services.Test
                 Tree = 0,
                 PkScript = new byte[0]
             };
-            
+
             _mockTxRepo.Setup(m => m.GetConfirmedUtxos(fromAddr)).ReturnsAsync(new[]{unspentOutput});
             _mockTxRepo.Setup(m => m.GetMempoolUtxos(fromAddr)).ReturnsAsync(new[]{unspentOutput});
             _mockDcrdClient.Setup(m => m.EstimateFeeAsync(It.IsAny<int>())).ReturnsAsync(0.001m);
-            _mockBroadcastedOutpointRepo.Setup(m => m.GetAsync($"{unspentOutput.Hash}:1"))
-                .ReturnsAsync((BroadcastedOutpoint) null);
-            
+
             var txFeeService = new TransactionFeeService(_mockDcrdClient.Object);
             var subject = new TransactionBuilder(
                 txFeeService,
-                _mockTxRepo.Object,
-                _mockBroadcastedOutpointRepo.Object
+                _mockTxRepo.Object
             );
-            
+
             var request = new BuildSingleTransactionRequest
             {
                 Amount = amountToSend.ToString(),
@@ -70,13 +65,13 @@ namespace Lykke.Service.Decred.Api.Services.Test
             var result = await subject.BuildSingleTransactionAsync(request, 1);
             var transaction = Transaction.Deserialize(HexUtil.ToByteArray(result.TransactionContext));
             var expectedFee = txFeeService.CalculateFee(100000, 1, 2, 1);
-            
+
             Assert.Equal(expectedFee, 2 * 100000000 - transaction.Outputs.Sum(o => o.Amount));
             Assert.Equal(2, transaction.Outputs.Length);
-            
+
             // Sent amount - fee
             Assert.Equal(1, transaction.Outputs.Count(o => o.Amount + expectedFee == 100000000));
-            
+
             // Change
             Assert.Equal(1, transaction.Outputs.Count(o => o.Amount == 100000000));
         }

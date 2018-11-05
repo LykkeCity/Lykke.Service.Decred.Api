@@ -144,12 +144,6 @@ namespace Lykke.Service.Decred.Api
                         AzureTableStorage<BroadcastedTransaction>.Create(connectionString, "BroadcastedTransaction", consoleLogger)
                     ));
 
-            services.AddTransient
-                <INosqlRepo<BroadcastedOutpoint>, AzureRepo<BroadcastedOutpoint>>(e =>
-                    new AzureRepo<BroadcastedOutpoint>(
-                        AzureTableStorage<BroadcastedOutpoint>.Create(connectionString, "BroadcastedOutpoint", consoleLogger)
-                    ));
-
             services.AddScoped<IDbConnection, NpgsqlConnection>((p) =>
             {
                 var dcrdataConnectionString = config.CurrentValue.ServiceSettings.Db.Dcrdata;

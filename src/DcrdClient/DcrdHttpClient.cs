@@ -59,15 +59,14 @@ namespace DcrdClient
             if (deserializedResponse == null)
                 throw new DcrdException($"Failed to deserialize dcrd response: {responseString}");
 
-            if (deserializedResponse.Error != null)
-                throw new DcrdException(deserializedResponse.Error.Message);
-
             return deserializedResponse;
         }
 
-        public async Task<DcrdRpcResponse<string>> PingAsync()
+        public async Task<string> PingAsync()
         {
-            return await PerformAsync<string>("ping");
+            var result = await PerformAsync<string>("ping");
+            if (result.HasError) throw new DcrdException(result.Error.ToString());
+            return result.Result;
         }
 
         public async Task<DcrdRpcResponse<string>> SendRawTransactionAsync(string hexTransaction)
@@ -78,6 +77,7 @@ namespace DcrdClient
         public async Task<GetBestBlockResult> GetBestBlockAsync()
         {
             var result = await PerformAsync<GetBestBlockResult>("getbestblock");
+            if (result.HasError) throw new DcrdException(result.Error.ToString());
             return result.Result;
         }
 
@@ -97,21 +97,16 @@ namespace DcrdClient
                 address, verbose, skip, count, vinExtra, reverse);
         }
 
-
         public async Task<long> GetMaxConfirmedBlockHeight()
         {
             var result = await GetBestBlockAsync();
             return result.Height - _minConfirmations;
         }
 
-        public int GetConfirmationDepth()
-        {
-            return _minConfirmations;
-        }
-
         public async Task<decimal> EstimateFeeAsync(int numBlocks)
         {
             var result = await PerformAsync<decimal>("estimatefee", numBlocks);
+            if (result.HasError) throw new DcrdException(result.Error.ToString());
             return result.Result;
         }
     }

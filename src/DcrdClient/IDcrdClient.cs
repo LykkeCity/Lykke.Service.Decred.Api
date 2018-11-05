@@ -4,7 +4,7 @@ namespace DcrdClient
 {
     public interface IDcrdClient
     {
-        Task<DcrdRpcResponse<string>> PingAsync();
+        Task<string> PingAsync();
         Task<DcrdRpcResponse<string>> SendRawTransactionAsync(string hexTransaction);
 
         /// <summary>
@@ -22,7 +22,6 @@ namespace DcrdClient
 
         Task<GetBestBlockResult> GetBestBlockAsync();
         Task<long> GetMaxConfirmedBlockHeight();
-        int GetConfirmationDepth();
 
         // Returns estimated fee as dcr/kb
         Task<decimal> EstimateFeeAsync(int numBlocks);
