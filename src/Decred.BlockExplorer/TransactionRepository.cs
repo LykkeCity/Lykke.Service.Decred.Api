@@ -84,7 +84,6 @@ namespace Decred.BlockExplorer
             return results.ToArray();
         }
 
-
         public async Task<UnspentTxOutput[]> GetConfirmedUtxos(string address)
         {
             const string query =

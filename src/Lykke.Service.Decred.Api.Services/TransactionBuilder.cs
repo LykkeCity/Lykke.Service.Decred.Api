@@ -16,21 +16,13 @@ namespace Lykke.Service.Decred.Api.Services
     {
         private readonly ITransactionFeeService _feeService;
         private readonly ITransactionRepository _txRepo;
-        private readonly INosqlRepo<BroadcastedOutpoint> _broadcastedOutpointRepo;
 
         public TransactionBuilder(
             ITransactionFeeService feeService,
-            ITransactionRepository txRepo,
-            INosqlRepo<BroadcastedOutpoint> broadcastedOutpointRepo)
+            ITransactionRepository txRepo)
         {
             _feeService = feeService;
             _txRepo = txRepo;
-            _broadcastedOutpointRepo = broadcastedOutpointRepo;
-        }
-
-        private async Task<bool> IsBroadcastedUtxo(Transaction.OutPoint outpoint)
-        {
-            return await _broadcastedOutpointRepo.GetAsync(outpoint.ToString()) != null;
         }
 
         /// <summary>
@@ -135,10 +127,6 @@ namespace Lykke.Service.Decred.Api.Services
             // of the amount + fee
             foreach (var input in allInputs)
             {
-                // Don't consume an outpoint if it's spent.
-                if (await IsBroadcastedUtxo(input.PreviousOutpoint))
-                    continue;
-
                 consumedInputs.Add(input);
                 totalSpent += input.InputAmount;
 

@@ -20,13 +20,11 @@ namespace Lykke.Service.Decred.Api.Services
 
         private readonly INosqlRepo<BroadcastedTransaction> _broadcastTxRepo;
         private readonly INosqlRepo<BroadcastedTransactionByHash> _broadcastTxHashRepo;
-        private readonly INosqlRepo<BroadcastedOutpoint> _broadcastedOutpointRepo;
 
         public TransactionBroadcastService(
             IDcrdClient dcrdClient,
             IBlockRepository blockRepository,
             ITransactionRepository txRepo,
-            INosqlRepo<BroadcastedOutpoint> broadcastedOutpointRepo,
             INosqlRepo<BroadcastedTransaction> broadcastTxRepo,
             INosqlRepo<BroadcastedTransactionByHash> broadcastTxHashRepo)
         {
@@ -36,19 +34,6 @@ namespace Lykke.Service.Decred.Api.Services
 
             _broadcastTxRepo = broadcastTxRepo;
             _broadcastTxHashRepo = broadcastTxHashRepo;
-            _broadcastedOutpointRepo = broadcastedOutpointRepo;
-        }
-
-        private string[] GetOutpointKeysForRawTransaction(string hexTransaction)
-        {
-            var txBytes = HexUtil.ToByteArray(hexTransaction);
-            return GetOutpointKeysForRawTransaction(txBytes);
-        }
-
-        private string[] GetOutpointKeysForRawTransaction(byte[] txBytes)
-        {
-            var tx = Transaction.Deserialize(txBytes);
-            return tx.Inputs.Select(input => input.PreviousOutpoint.ToString()).ToArray();
         }
 
         /// <summary>
@@ -78,11 +63,6 @@ namespace Lykke.Service.Decred.Api.Services
             var result = await _dcrdClient.SendRawTransactionAsync(hexTransaction);
             if (result.Error != null)
                 throw new TransactionBroadcastException($"[{result.Error.Code}] {result.Error.Message}");
-
-            // Flag the consumed outpoints as spent.
-            var outpoints = GetOutpointKeysForRawTransaction(txBytes);
-            foreach (var outpoint in outpoints)
-                _broadcastedOutpointRepo.InsertAsync(new BroadcastedOutpoint {Value = outpoint});
 
             var txHash = HexUtil.FromByteArray(msgTx.GetHash().Reverse().ToArray());
             await SaveBroadcastedTransaction(new BroadcastedTransaction
@@ -147,11 +127,6 @@ namespace Lykke.Service.Decred.Api.Services
             var operation = await _broadcastTxRepo.GetAsync(operationId.ToString());
             if (operation == null)
                 throw new BusinessException(ErrorReason.RecordNotFound, "Record not found");
-
-            // Unflag outpoints as spent.
-            var outpoints = GetOutpointKeysForRawTransaction(operation.EncodedTransaction);
-            foreach (var outpoint in outpoints)
-                await _broadcastedOutpointRepo.DeleteAsync(new BroadcastedOutpoint{Value = outpoint});
 
             await _broadcastTxRepo.DeleteAsync(operation);
         }
