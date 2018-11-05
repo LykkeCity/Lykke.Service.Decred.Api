@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace Decred.BlockExplorer
         {
             if(hash == null) return 0;
             return await _dbConnection.ExecuteScalarAsync<long?>(
-                "select id from transactions where tx_hash = @txHash",
+                "select id from transactions where is_valid and is_mainchain and tx_hash = @txHash",
                 new { txHash = hash }) ?? 0;
         }
 
@@ -132,10 +133,14 @@ namespace Decred.BlockExplorer
         {
             var transactions =  await GetMempoolUtxosInternal(address);
 
+            // Create a hash set of transaction vins.
+            var vinSet = transactions
+                .SelectMany(tx => tx.Vin)
+                .Select(vin => $"{vin.TxId}:{vin.Vout}")
+                .ToImmutableHashSet();
+
             // Check if an outpoint is the input to another known transaction.
-            bool IsSpent(string txId, TxVout txOut) =>
-                transactions.SelectMany(tx => tx.Vin)
-                    .Any(vin => vin.TxId == txId && vin.Vout == txOut.N);
+            bool IsSpent(string txId, TxVout txOut) => vinSet.Contains($"{txId}:{txOut.N}");
 
             // Filter out transactions that have a spent outpoint
             // Only grab transactions that spend to the provided address.
@@ -165,7 +170,10 @@ namespace Decred.BlockExplorer
                     tx_hash as TxHash,
                     block_height as  BlockHeight,
                     block_time as BlockTime
-                from transactions where tx_hash = @txHash and block_height <= @blockHeight";
+                from transactions
+                where is_valid and is_mainchain
+                  and tx_hash = @txHash
+                  and block_height <= @blockHeight";
 
             var results = await _dbConnection.QueryAsync<TxInfo>(query, new
             {
