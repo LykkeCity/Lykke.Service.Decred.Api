@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+	<TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+    <Version>1.0.1</Version>
+    <AssemblyName>Lykke.Service.Decred.Api</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Decred.Common" Version="1.0.0" />
+    <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.10.1" />
+    <PackageReference Include="Lykke.Logs" Version="5.1.0" />
+    <PackageReference Include="Lykke.Service.BlockchainApi.Contract" Version="13.0.0" />
+    <PackageReference Include="Lykke.SettingsReader" Version="2.4.1" />
+    <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="2.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
+    <PackageReference Include="Npgsql" Version="3.2.7" />
+    <PackageReference Include="Paymetheus.Decred" Version="1.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DcrdClient\DcrdClient.csproj" />
+    <ProjectReference Include="..\Decred.BlockExplorer\Decred.BlockExplorer.csproj" />
+    <ProjectReference Include="..\Lykke.Service.Decred.Api.Common\Lykke.Service.Decred.Api.Common.csproj" />
+    <ProjectReference Include="..\Lykke.Service.Decred.Api.Repository\Lykke.Service.Decred.Api.Repository.csproj" />
+    <ProjectReference Include="..\Lykke.Service.Decred.Api.Services\Lykke.Service.Decred.Api.Services.csproj" />
+  </ItemGroup>
+</Project>

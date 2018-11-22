@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AssemblyName>Lykke.Service.Decred.Api.Services</AssemblyName>
+    <RootNamespace>Lykke.Service.Decred.Api.Services</RootNamespace>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DcrdClient\DcrdClient.csproj" />
+    <ProjectReference Include="..\Decred.BlockExplorer\Decred.BlockExplorer.csproj" />
+    <ProjectReference Include="..\Lykke.Service.Decred.Api.Repository\Lykke.Service.Decred.Api.Repository.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Decred.Common" Version="1.0.0" />
+    <PackageReference Include="Lykke.Service.BlockchainApi.Contract" Version="13.0.0" />
+    <PackageReference Include="Paymetheus.Decred" Version="1.0.1" />
+  </ItemGroup>
+</Project>

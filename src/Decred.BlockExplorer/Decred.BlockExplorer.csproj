@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>netcoreapp2.1</TargetFramework>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="data/*" CopyToPublishDirectory="Always" />
+    <PackageReference Include="Dapper" Version="1.50.5" />
+    <PackageReference Include="Decred.Common" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Paymetheus.Decred" Version="1.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DcrdClient\DcrdClient.csproj" />
+  </ItemGroup>
+</Project>
