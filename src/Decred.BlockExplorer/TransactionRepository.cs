@@ -115,17 +115,43 @@ namespace Decred.BlockExplorer
 
         private async Task<SearchRawTransactionsResult[]> GetMempoolUtxosInternal(string address)
         {
-            var empty = new SearchRawTransactionsResult[0];
+            int skip = 0;
+            int pageSize = 100;
+            var results = new List<SearchRawTransactionsResult>();
 
-            try
+            while (true)
             {
-                var results = await _dcrdClient.SearchRawTransactions(address, count: 100, reverse: true);
-                return results.Result ?? empty;
+                try
+                {
+                    // Paginate through the results.
+                    var response = await _dcrdClient.SearchRawTransactions(
+                        address,
+                        skip: skip,
+                        count: pageSize,
+                        reverse: true
+                    );
+
+                    // If no results, break.
+                    if (response.Result == null || response.Result.Length == 0)
+                        break;
+
+                    // Only select unconfirmed transactions.
+                    // If there are less than 100 unconfirmed transactions, then
+                    //   we've started to retrieve records that are out of the mempool
+                    //   and we can break.
+                    var unconfirmed = response.Result.Where(r => r.Confirmations == 0).ToList();
+                    results.AddRange(unconfirmed);
+                    if (unconfirmed.Count < pageSize) break;
+
+                    skip += response.Result.Length;
+                }
+                catch (DcrdException)
+                {
+                    break;
+                }
             }
-            catch (DcrdException)
-            {
-                return empty;
-            }
+
+            return results.ToArray();
         }
 
         public async Task<UnspentTxOutput[]> GetMempoolUtxos(string address)
