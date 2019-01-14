@@ -97,7 +97,6 @@ namespace DcrdClient
                 address, verbose, skip, count, vinExtra, reverse);
         }
 
-
         public async Task<long> GetMaxConfirmedBlockHeight()
         {
             var result = await GetBestBlockAsync();
