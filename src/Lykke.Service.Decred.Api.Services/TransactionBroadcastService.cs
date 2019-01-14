@@ -59,12 +59,26 @@ namespace Lykke.Service.Decred.Api.Services
             if (cachedResult != null)
                 throw new BusinessException(ErrorReason.DuplicateRecord, "Operation already broadcast");
 
+            var txHash = HexUtil.FromByteArray(msgTx.GetHash().Reverse().ToArray());
+            var txWasMined = await _txRepo.GetTxInfoByHash(txHash, long.MaxValue) != null;
+
+            if (txWasMined)
+            {
+                await SaveBroadcastedTransaction(new BroadcastedTransaction
+                {
+                    OperationId = operationId,
+                    Hash = txHash,
+                    EncodedTransaction = hexTransaction
+                });
+
+                throw new BusinessException(ErrorReason.DuplicateRecord, "Operation already broadcast");
+            }
+
             // Submit the transaction to the network via dcrd
             var result = await _dcrdClient.SendRawTransactionAsync(hexTransaction);
             if (result.Error != null)
                 throw new TransactionBroadcastException($"[{result.Error.Code}] {result.Error.Message}");
 
-            var txHash = HexUtil.FromByteArray(msgTx.GetHash().Reverse().ToArray());
             await SaveBroadcastedTransaction(new BroadcastedTransaction
             {
                 OperationId = operationId,
