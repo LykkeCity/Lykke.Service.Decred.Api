@@ -8,6 +8,7 @@ using Common.Log;
 using DcrdClient;
 using Decred.BlockExplorer;
 using Lykke.Common.ApiLibrary.Middleware;
+using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Common.Log;
 using Lykke.Logs;
 using Lykke.Logs.Loggers.LykkeSlack;
@@ -62,6 +63,10 @@ namespace Lykke.Service.Decred.Api
                     options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
                 });
 
+            services.AddSwaggerGen(options =>
+            {
+                options.DefaultLykkeConfiguration("v1", "Decred API");
+            });
             services.AddLykkeLogging(
                 reloadableSettings.ConnectionString(s => s.ServiceSettings.Db.LogsConnString),
                 "DecredApiLog",
@@ -181,6 +186,13 @@ namespace Lykke.Service.Decred.Api
             app.UseMiddleware(typeof(ApiErrorHandler));
             app.UseLykkeForwardedHeaders();
             app.UseMvc();
+            app.UseSwagger();
+            app.UseSwaggerUI(x =>
+            {
+                x.RoutePrefix = "swagger/ui";
+                x.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            });
+            app.UseStaticFiles();
 
             appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
             appLifetime.ApplicationStopped.Register(() => CleanUp().GetAwaiter().GetResult());
