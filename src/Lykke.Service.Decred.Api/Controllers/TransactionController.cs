@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Common.Log;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Common;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
@@ -13,18 +14,15 @@ namespace Lykke.Service.Decred.Api.Controllers
 {
     public class TransactionController : Controller
     {
-        private readonly ILog _log;
         private readonly IAddressValidationService _addressValidationService;
         private readonly IUnsignedTransactionService _txBuilderService;
         private readonly ITransactionBroadcastService _txBroadcastService;
 
         public TransactionController(
-            ILog log,
             IAddressValidationService addressValidationService,
             IUnsignedTransactionService txBuilderService,
             ITransactionBroadcastService txBroadcastService)
         {
-            _log = log;
             _addressValidationService = addressValidationService;
             _txBuilderService = txBuilderService;
             _txBroadcastService = txBroadcastService;
@@ -148,11 +146,11 @@ namespace Lykke.Service.Decred.Api.Controllers
             }
         }
 
-        private async Task<JsonResult> GenericErrorResponse(Exception ex, Guid operationId, HttpStatusCode status)
+        private Task<JsonResult> GenericErrorResponse(Exception ex, Guid operationId, HttpStatusCode status)
         {
             Response.StatusCode = (int) status;
-            await _log.WriteErrorAsync(nameof(TransactionController), nameof(GenericErrorResponse), operationId.ToString(), ex);
-            return Json(new { errorMessage = ex.ToString() });
+            
+            return Task.FromResult(Json(new { errorMessage = ex.ToString() }));
         }
 
         #region Not implemented endpoints
