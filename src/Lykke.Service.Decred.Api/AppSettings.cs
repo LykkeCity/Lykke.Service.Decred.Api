@@ -8,6 +8,7 @@ namespace Lykke.Service.Decred.Api
     {
         public ServiceSettings ServiceSettings { get; set; }
         public SlackNotificationsSettings SlackNotifications { get; set; }
+        [Optional] public MonitoringServiceClientSettings MonitoringServiceClient { get; set; }
     }
 
     public class AssetConfig
@@ -51,5 +52,14 @@ namespace Lykke.Service.Decred.Api
     {
         public string ConnectionString { get; set; }
         public string QueueName { get; set; }
+    }
+
+    public class MonitoringServiceClientSettings
+    {
+        /// <summary>
+        ///     Gets or sets the monitoring service URL.
+        /// </summary>
+        [HttpCheck("api/isalive")]
+        public string MonitoringServiceUrl { get; set; }
     }
 }

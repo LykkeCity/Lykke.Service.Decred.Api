@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Common.Log;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Balances;
 using Lykke.Service.Decred.Api.Common;
@@ -12,15 +13,12 @@ namespace Lykke.Service.Decred.Api.Controllers
 {
     public class BalanceController : Controller
     {
-        private readonly ILog _log;
         private readonly BalanceService _service;
         private readonly IAddressValidationService _addressValidator;
 
-        public BalanceController(ILog log, 
-            BalanceService service, 
+        public BalanceController(BalanceService service, 
             IAddressValidationService addressValidator)
         {
-            _log = log;
             _service = service;
             _addressValidator = addressValidator;
         }

@@ -6,6 +6,7 @@ using Common.Log;
 using DcrdClient;
 using Decred.BlockExplorer;
 using Lykke.Common.Health;
+using Lykke.Common.Log;
 using Lykke.Service.Decred.Api.Common.Services;
 
 namespace Lykke.Service.Decred.Api.Services
@@ -18,11 +19,11 @@ namespace Lykke.Service.Decred.Api.Services
         private readonly IBlockRepository _blockRepository;
 
         public HealthService(
-            ILog log,
+            ILogFactory lf,
             IDcrdClient client,
             IBlockRepository blockRepository)
         {
-            _log = log;
+            _log = lf.CreateLog(this);
             _dcrdClient = client;
             _blockRepository = blockRepository;
         }
@@ -46,7 +47,7 @@ namespace Lykke.Service.Decred.Api.Services
             }
             catch (Exception e)
             {
-                await _log.WriteErrorAsync(nameof(HealthService), nameof(GetDcrdataHealthIssues), "", e);
+                _log.Error(e);
                 return new[]
                 {
                     HealthIssue.Create("UnknownHealthIssue", e.Message),
