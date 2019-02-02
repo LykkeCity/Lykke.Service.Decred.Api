@@ -74,9 +74,19 @@ namespace Lykke.Service.Decred.Api
                 reloadableSettings.CurrentValue.SlackNotifications.AzureQueue.QueueName,
                 logging =>
                 {
-                    logging.AddAdditionalSlackChannel("BlockChainIntegration");
-                    logging.AddAdditionalSlackChannel("BlockChainIntegrationImportantMessages",
-                        options => { options.MinLogLevel = Microsoft.Extensions.Logging.LogLevel.Warning; });
+                    logging.AddAdditionalSlackChannel("BlockChainIntegration", channelOptions =>
+                    {
+                        channelOptions.MinLogLevel = Microsoft.Extensions.Logging.LogLevel.Information;
+                        channelOptions.SpamGuard.DisableGuarding();
+                        channelOptions.IncludeHealthNotifications();
+                    });
+
+                    logging.AddAdditionalSlackChannel("BlockChainIntegrationImportantMessages", channelOptions =>
+                    {
+                        channelOptions.MinLogLevel = Microsoft.Extensions.Logging.LogLevel.Warning;
+                        channelOptions.SpamGuard.DisableGuarding();
+                        channelOptions.IncludeHealthNotifications();
+                    });
                 });
 
             RegisterRepositories(reloadableSettings, services);
@@ -203,13 +213,13 @@ namespace Lykke.Service.Decred.Api
 #if !DEBUG
             await Configuration.RegisterInMonitoringServiceAsync(_monitoringServiceUrl, _healthNotifier);
 #endif
-            _healthNotifier.Notify("Started", Program.EnvInfo);
+            _healthNotifier.Notify("Started");
         }
         
 
         private Task CleanUp()
         {
-            _healthNotifier?.Notify("Terminating", Program.EnvInfo);
+            _healthNotifier?.Notify("Terminating");
 
             return Task.CompletedTask;
         }
