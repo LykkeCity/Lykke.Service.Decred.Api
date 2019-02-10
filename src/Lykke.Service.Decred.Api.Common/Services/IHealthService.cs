@@ -9,5 +9,6 @@ namespace Lykke.Service.Decred.Api.Common.Services
     {
         string GetHealthViolationMessage();
         Task<IEnumerable<HealthIssue>> GetHealthIssuesAsync();
+        Task UpdateHealthStatus();
     }
 }

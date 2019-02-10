@@ -7,6 +7,8 @@ using DcrdClient;
 using Decred.BlockExplorer;
 using Lykke.Common.Health;
 using Lykke.Common.Log;
+using Lykke.Service.Decred.Api.Common;
+using Lykke.Service.Decred.Api.Common.Entity;
 using Lykke.Service.Decred.Api.Common.Services;
 
 namespace Lykke.Service.Decred.Api.Services
@@ -17,15 +19,17 @@ namespace Lykke.Service.Decred.Api.Services
         private readonly ILog _log;
         private readonly IDcrdClient _dcrdClient;
         private readonly IBlockRepository _blockRepository;
+        private readonly INosqlRepo<HealthStatusEntity> _healthStatusRepo;
 
         public HealthService(
             ILogFactory lf,
             IDcrdClient client,
-            IBlockRepository blockRepository)
+            IBlockRepository blockRepository, INosqlRepo<HealthStatusEntity> healthStatusRepo)
         {
             _log = lf.CreateLog(this);
             _dcrdClient = client;
             _blockRepository = blockRepository;
+            _healthStatusRepo = healthStatusRepo;
         }
 
         public string GetHealthViolationMessage()
@@ -35,26 +39,35 @@ namespace Lykke.Service.Decred.Api.Services
 
         public async Task<IEnumerable<HealthIssue>> GetHealthIssuesAsync()
         {
+            var result = (await _healthStatusRepo.GetAsync(HealthStatusEntity.RowKeyDefaultValue))?.HealthIssues
+                         ?? Enumerable.Empty<HealthStatusEntity.HealthIssue>();
+
+            return result.Select(p=>HealthIssue.Create(p.Type, p.Value));
+        }
+
+        public async Task UpdateHealthStatus()
+        {
+            var result = new List<HealthIssue>();
             try
             {
-                var dcrdIssues = await GetDcrdHealthIssues();
-                if (dcrdIssues.Any())
-                    return dcrdIssues;
-
-                var dcrdataIssues = await GetDcrdataHealthIssues();
-                if (dcrdataIssues.Any())
-                    return dcrdataIssues;
+                result.AddRange(await GetDcrdHealthIssues());
+                result.AddRange(await GetDcrdataHealthIssues());
             }
             catch (Exception e)
             {
                 _log.Error(e);
-                return new[]
-                {
-                    HealthIssue.Create("UnknownHealthIssue", e.Message),
-                };
+
+                result.Add(HealthIssue.Create("UnknownHealthIssue", e.Message));
             }
 
-            return Enumerable.Empty<HealthIssue>();
+            await _healthStatusRepo.InsertAsync(new HealthStatusEntity
+            {
+                HealthIssues = result.Select(p => new HealthStatusEntity.HealthIssue
+                {
+                    Type = p.Type,
+                    Value = p.Value
+                }).ToArray()
+            });
         }
 
         private async Task<HealthIssue[]> GetDcrdHealthIssues()
@@ -66,7 +79,7 @@ namespace Lykke.Service.Decred.Api.Services
             }
             catch (Exception e)
             {
-                await _log.WriteErrorAsync(nameof(HealthService), nameof(GetDcrdHealthIssues), "", e);
+                _log.Error(e,process: nameof(GetDcrdHealthIssues));
                 return new[]
                 {
                     HealthIssue.Create("DcrdPingFailure",
