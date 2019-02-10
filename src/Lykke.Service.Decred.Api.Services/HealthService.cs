@@ -50,7 +50,7 @@ namespace Lykke.Service.Decred.Api.Services
                 _log.Error(e);
                 return new[]
                 {
-                    HealthIssue.Create("UnknownHealthIssue", e.Message),
+                    HealthIssue.Create("UnknownHealthIssue", e.ToString()),
                 };
             }
 
@@ -70,7 +70,7 @@ namespace Lykke.Service.Decred.Api.Services
                 return new[]
                 {
                     HealthIssue.Create("DcrdPingFailure",
-                        $"Failed to ping dcrd.  {e.Message}".Trim())
+                        $"Failed to ping dcrd.  {e}".Trim())
                 };
             }
         }
