@@ -34,4 +34,7 @@
     <ProjectReference Include="..\Lykke.Service.Decred.Api.Repository\Lykke.Service.Decred.Api.Repository.csproj" />
     <ProjectReference Include="..\Lykke.Service.Decred.Api.Services\Lykke.Service.Decred.Api.Services.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Workflow\PeriodicalHandlers\" />
+  </ItemGroup>
 </Project>

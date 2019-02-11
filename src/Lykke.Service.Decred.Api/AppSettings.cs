@@ -1,4 +1,5 @@
-﻿using Lykke.Service.Decred.Api.Services;
+﻿using System;
+using Lykke.Service.Decred.Api.Services;
 using Lykke.SettingsReader.Attributes;
 using Newtonsoft.Json;
 
@@ -41,6 +42,10 @@ namespace Lykke.Service.Decred.Api
         public AssetConfig Asset { get; set; }
         public DcrdSettings Dcrd { get; set; }
         public DbSettings Db { get; set; }
+
+        [Optional] public TimeSpan SpentOutputsExpiration { get; set; } = TimeSpan.FromDays(1);
+
+        [Optional] public TimeSpan SpentOutputsExpirationTimerPeriod { get; set; } = TimeSpan.FromMinutes(10);
     }
     
     public class SlackNotificationsSettings
