@@ -37,12 +37,15 @@ namespace Lykke.Service.Decred.Api.Services
             return null;
         }
 
-        public async Task<IEnumerable<HealthIssue>> GetHealthIssuesAsync()
+        public async Task<(DateTime updated, IEnumerable<HealthIssue> issues)> GetHealthStatusAsync()
         {
-            var result = (await _healthStatusRepo.GetAsync(HealthStatusEntity.RowKeyDefaultValue))?.HealthIssues
-                         ?? Enumerable.Empty<HealthStatusEntity.HealthIssue>();
+            var result = (await _healthStatusRepo.GetAsync(HealthStatusEntity.RowKeyDefaultValue));
+            if (result != null)
+            {
+                return (updated: result.Updated, result.HealthIssues.Select(p => HealthIssue.Create(p.Type, p.Value)));
+            }
 
-            return result.Select(p=>HealthIssue.Create(p.Type, p.Value));
+            return (DateTime.MinValue, Enumerable.Empty<HealthIssue>());
         }
 
         public async Task UpdateHealthStatus()
@@ -66,7 +69,8 @@ namespace Lykke.Service.Decred.Api.Services
                 {
                     Type = p.Type,
                     Value = p.Value
-                }).ToArray()
+                }).ToArray(),
+                Updated = DateTime.UtcNow
             });
         }
 
@@ -83,7 +87,7 @@ namespace Lykke.Service.Decred.Api.Services
                 return new[]
                 {
                     HealthIssue.Create("DcrdPingFailure",
-                        $"Failed to ping dcrd.  {e.Message}".Trim())
+                        $"Failed to ping dcrd.  {e}".Trim())
                 };
             }
         }
