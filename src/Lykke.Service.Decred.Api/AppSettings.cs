@@ -44,6 +44,9 @@ namespace Lykke.Service.Decred.Api
         public DbSettings Db { get; set; }
         [Optional]
         public TimeSpan UpdateHealthStatusTimerPeriod { get; set; } = TimeSpan.FromSeconds(30);
+        [Optional] public TimeSpan SpentOutputsExpiration { get; set; } = TimeSpan.FromDays(1);
+
+        [Optional] public TimeSpan SpentOutputsExpirationTimerPeriod { get; set; } = TimeSpan.FromMinutes(10);
     }
     
     public class SlackNotificationsSettings

@@ -28,6 +28,7 @@ using NDecred.Common;
 using Newtonsoft.Json.Serialization;
 using Npgsql;
 using Lykke.MonitoringServiceApiCaller;
+using Lykke.Service.Decred.Api.Repository.SpentOutputs;
 using Lykke.Service.Decred.Api.Workflow.PeriodicalHandlers;
 
 namespace Lykke.Service.Decred.Api
@@ -39,6 +40,7 @@ namespace Lykke.Service.Decred.Api
 
         private IHealthNotifier _healthNotifier;
         private UpdateHealStatusPeriodicalHandler _healStatusPeriodicalHandler;
+        private RemoveOldSpentOutputsPeriodicalHandler _removeOldSpentOutputsPeriodicalHandler;
         private string _monitoringServiceUrl;
 
         public Startup(IHostingEnvironment env)
@@ -139,6 +141,11 @@ namespace Lykke.Service.Decred.Api
                 new UpdateHealStatusPeriodicalHandler(reloadableSettings.CurrentValue.ServiceSettings.UpdateHealthStatusTimerPeriod,
                     e.GetService<ILogFactory>(),
                     e.GetService<IHealthService>()));
+            services.AddSingleton(e =>
+                    new RemoveOldSpentOutputsPeriodicalHandler(e.GetService<ILogFactory>(),
+                        reloadableSettings.CurrentValue.ServiceSettings.SpentOutputsExpirationTimerPeriod,
+                        reloadableSettings.CurrentValue.ServiceSettings.SpentOutputsExpiration,
+                        e.GetService<ISpentOutputRepository>()));
         }
 
         private void RegisterRepositories(IReloadingManager<AppSettings> config, IServiceCollection services)
@@ -181,6 +188,11 @@ namespace Lykke.Service.Decred.Api
                     new AzureRepo<HealthStatusEntity>(
                         AzureTableStorage<HealthStatusEntity>.Create(connectionString, "HealthStatuses", e.GetService<ILogFactory>())
                     ));
+            services.AddSingleton
+                <ISpentOutputRepository>(e =>
+                    new SpentOutputRepository(
+                        AzureTableStorage<SpentOutputEntity>.Create(connectionString, "SpentOutputs", e.GetService<ILogFactory>())
+                    ));
             services.AddScoped<IDbConnection, NpgsqlConnection>((p) =>
             {
                 var dcrdataConnectionString = config.CurrentValue.ServiceSettings.Db.Dcrdata;
@@ -204,6 +216,7 @@ namespace Lykke.Service.Decred.Api
 
             _healthNotifier = app.ApplicationServices.GetService<IHealthNotifier>();
             _healStatusPeriodicalHandler = app.ApplicationServices.GetService<UpdateHealStatusPeriodicalHandler>();
+            _removeOldSpentOutputsPeriodicalHandler = app.ApplicationServices.GetService<RemoveOldSpentOutputsPeriodicalHandler>();
             app.UseMiddleware(typeof(ApiErrorHandler));
             app.UseLykkeForwardedHeaders();
             app.UseMvc();
@@ -225,6 +238,7 @@ namespace Lykke.Service.Decred.Api
             await Configuration.RegisterInMonitoringServiceAsync(_monitoringServiceUrl, _healthNotifier);
 #endif
             _healStatusPeriodicalHandler.Start();
+            _removeOldSpentOutputsPeriodicalHandler.Start();
             _healthNotifier.Notify("Started");
         }
         
@@ -233,6 +247,8 @@ namespace Lykke.Service.Decred.Api
         {
             _healStatusPeriodicalHandler.Start();
             _healthNotifier?.Notify("Terminating");
+
+            _removeOldSpentOutputsPeriodicalHandler.Stop();
 
             return Task.CompletedTask;
         }
