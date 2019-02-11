@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Lykke.AzureStorage.Tables;
 using Lykke.AzureStorage.Tables.Entity.Annotation;
 
@@ -19,6 +20,8 @@ namespace Lykke.Service.Decred.Api.Common.Entity
 
         [JsonValueSerializer]
         public HealthIssue[] HealthIssues { get; set; }
+
+        public DateTime Updated { get; set; }
 
         public class HealthIssue
         {
