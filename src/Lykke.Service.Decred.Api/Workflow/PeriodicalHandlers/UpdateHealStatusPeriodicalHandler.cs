@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Data;
 using System.Threading.Tasks;
 using Autofac;
 using Common;
 using Common.Log;
 using Lykke.Common.Log;
 using Lykke.Service.Decred.Api.Common.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lykke.Service.Decred.Api.Workflow.PeriodicalHandlers
 {
@@ -12,22 +14,25 @@ namespace Lykke.Service.Decred.Api.Workflow.PeriodicalHandlers
     {
         private readonly ILog _log;
         private readonly TimerTrigger _timerTrigger;
-        private readonly IHealthService _healthService;
+        private IServiceScopeFactory _serviceScopeFactory;
 
         public UpdateHealStatusPeriodicalHandler(TimeSpan timerPeriod, 
             ILogFactory logFactory, 
-            IHealthService healthService)
+            IServiceScopeFactory serviceScopeFactory)
         {
-            _healthService = healthService;
+            _serviceScopeFactory = serviceScopeFactory;
             _log = logFactory.CreateLog(this);
 
             _timerTrigger = new TimerTrigger(nameof(UpdateHealStatusPeriodicalHandler), timerPeriod, logFactory);
             _timerTrigger.Triggered += (trigger, args, token) => Execute();
         }
 
-        public Task Execute()
+        public async Task Execute()
         {
-            return _healthService.UpdateHealthStatus();
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                await scope.ServiceProvider.GetRequiredService<IHealthService>().UpdateHealthStatus();
+            }
         }
 
         public void Start()
