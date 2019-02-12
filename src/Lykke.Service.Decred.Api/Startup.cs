@@ -138,7 +138,7 @@ namespace Lykke.Service.Decred.Api
             services.AddSingleton(e =>
                 new UpdateHealStatusPeriodicalHandler(reloadableSettings.CurrentValue.ServiceSettings.UpdateHealthStatusTimerPeriod,
                     e.GetService<ILogFactory>(),
-                    e.GetService<IHealthService>()));
+                    e.GetService<IServiceScopeFactory>()));
         }
 
         private void RegisterRepositories(IReloadingManager<AppSettings> config, IServiceCollection services)
