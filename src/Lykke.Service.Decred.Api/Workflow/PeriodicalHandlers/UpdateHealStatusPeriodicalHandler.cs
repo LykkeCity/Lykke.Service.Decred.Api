@@ -14,7 +14,7 @@ namespace Lykke.Service.Decred.Api.Workflow.PeriodicalHandlers
     {
         private readonly ILog _log;
         private readonly TimerTrigger _timerTrigger;
-        private IServiceScopeFactory _serviceScopeFactory;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public UpdateHealStatusPeriodicalHandler(TimeSpan timerPeriod, 
             ILogFactory logFactory, 
