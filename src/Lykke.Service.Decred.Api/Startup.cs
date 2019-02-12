@@ -140,7 +140,7 @@ namespace Lykke.Service.Decred.Api
             services.AddSingleton(e =>
                 new UpdateHealStatusPeriodicalHandler(reloadableSettings.CurrentValue.ServiceSettings.UpdateHealthStatusTimerPeriod,
                     e.GetService<ILogFactory>(),
-                    e.GetService<IHealthService>()));
+                    e.GetService<IServiceScopeFactory>()));
             services.AddSingleton(e =>
                     new RemoveOldSpentOutputsPeriodicalHandler(e.GetService<ILogFactory>(),
                         reloadableSettings.CurrentValue.ServiceSettings.SpentOutputsExpirationTimerPeriod,
