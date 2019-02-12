@@ -174,6 +174,9 @@ namespace Lykke.Service.Decred.Api.Services
                 expiry
             );
 
+            await _spentOutputRepository.InsertSpentOutputsAsync(request.OperationId,
+                consumedInputs.Select(p => new Output(p.PreviousOutpoint.Hash.ToString(), p.PreviousOutpoint.Index)));
+            
             return new BuildTransactionResponse
             {
                 TransactionContext = HexUtil.FromByteArray(newTx.Serialize())
