@@ -42,7 +42,7 @@ namespace Lykke.Service.Decred.Api.Services
             var result = (await _healthStatusRepo.GetAsync(HealthStatusEntity.RowKeyDefaultValue));
             if (result != null)
             {
-                return (updated: result.Timestamp.Date, result.HealthIssues.Select(p => HealthIssue.Create(p.Type, p.Value)));
+                return (updated: result.Timestamp.UtcDateTime, result.HealthIssues.Select(p => HealthIssue.Create(p.Type, p.Value)));
             }
 
             return (DateTime.MinValue, Enumerable.Empty<HealthIssue>());
