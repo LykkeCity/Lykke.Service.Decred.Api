@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Decred.BlockExplorer;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.Decred.Api.Common;
+using Lykke.Service.Decred.Api.Common.Domain;
 using Lykke.Service.Decred.Api.Repository;
 using Lykke.Service.Decred.Api.Repository.SpentOutputs;
 using NDecred.Common;
@@ -52,8 +53,8 @@ namespace Lykke.Service.Decred.Api.Services
 
             // Remove already spent outputs (based on db storage)
             var spentoutputs = (await 
-                _spentOutputRepository.GetSpentOutputsAsync(allUtxos.Select(p => new Output(p)))).ToDictionary(p => p, Output.HashOutputIndexComparer);
-            var notSpentUtxos = allUtxos.Where(p => !spentoutputs.ContainsKey(new Output(p))).ToList();
+                _spentOutputRepository.GetSpentOutputsAsync(allUtxos.Select(p => new Output(p.Hash, p.OutputIndex)))).ToDictionary(p => p, Output.HashOutputIndexComparer);
+            var notSpentUtxos = allUtxos.Where(p => !spentoutputs.ContainsKey(new Output(p.Hash, p.OutputIndex))).ToList();
 
             // Get all unspent transaction outputs to address
             // and map as inputs to new transaction
