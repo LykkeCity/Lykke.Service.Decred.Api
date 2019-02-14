@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Lykke.Service.Decred.Api.Common.Domain;
 
 namespace Lykke.Service.Decred.Api.Repository.SpentOutputs
 {

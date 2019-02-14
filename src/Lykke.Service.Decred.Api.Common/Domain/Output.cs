@@ -1,11 +1,19 @@
 ﻿using System.Collections.Generic;
-using Decred.BlockExplorer;
 
-namespace Lykke.Service.Decred.Api.Repository
+namespace Lykke.Service.Decred.Api.Common.Domain
 {
     public class Output
     {
-        public string Hash { get; set; }
+        public string Hash { get; }
+
+        public uint OutputIndex { get; }
+
+
+        public Output(string txHash, uint n)
+        {
+            Hash = txHash;
+            OutputIndex = n;
+        }
 
         private sealed class HashOutputIndexEqualityComparer : IEqualityComparer<Output>
         {
@@ -28,20 +36,5 @@ namespace Lykke.Service.Decred.Api.Repository
         }
 
         public static IEqualityComparer<Output> HashOutputIndexComparer { get; } = new HashOutputIndexEqualityComparer();
-
-        public uint OutputIndex { get; set; }
-
-
-        public Output(string txHash, uint n)
-        {
-            Hash = txHash;
-            OutputIndex = n;
-        }
-
-        public Output(UnspentTxOutput unspent)
-        {
-            Hash = unspent.Hash;
-            OutputIndex = unspent.OutputIndex;
-        }
     }
 }

@@ -5,6 +5,7 @@ using DcrdClient;
 using Decred.BlockExplorer;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.Decred.Api.Common;
+using Lykke.Service.Decred.Api.Common.Domain;
 using Lykke.Service.Decred.Api.Common.Entity;
 using Lykke.Service.Decred.Api.Repository;
 using Lykke.Service.Decred.Api.Repository.SpentOutputs;

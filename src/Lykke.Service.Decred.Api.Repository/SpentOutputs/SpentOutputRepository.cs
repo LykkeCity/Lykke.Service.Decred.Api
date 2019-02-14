@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
+using Lykke.Service.Decred.Api.Common.Domain;
 using Lykke.Service.Decred.Api.Common.Extensions;
 
 namespace Lykke.Service.Decred.Api.Repository.SpentOutputs
