@@ -42,7 +42,7 @@ namespace Lykke.Service.Decred.Api.Services
             var result = (await _healthStatusRepo.GetAsync(HealthStatusEntity.RowKeyDefaultValue));
             if (result != null)
             {
-                return (updated: result.Updated, result.HealthIssues.Select(p => HealthIssue.Create(p.Type, p.Value)));
+                return (updated: result.Timestamp.Date, result.HealthIssues.Select(p => HealthIssue.Create(p.Type, p.Value)));
             }
 
             return (DateTime.MinValue, Enumerable.Empty<HealthIssue>());
@@ -69,8 +69,7 @@ namespace Lykke.Service.Decred.Api.Services
                 {
                     Type = p.Type,
                     Value = p.Value
-                }).ToArray(),
-                Updated = DateTime.UtcNow
+                }).ToArray()
             });
         }
 
@@ -83,7 +82,7 @@ namespace Lykke.Service.Decred.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(e,process: nameof(GetDcrdHealthIssues));
+                _log.Error(e);
                 return new[]
                 {
                     HealthIssue.Create("DcrdPingFailure",
