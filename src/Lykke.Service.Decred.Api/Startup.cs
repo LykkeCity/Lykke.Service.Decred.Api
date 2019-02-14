@@ -183,7 +183,7 @@ namespace Lykke.Service.Decred.Api
                         AzureTableStorage<BroadcastedTransaction>.Create(connectionString, "BroadcastedTransaction", e.GetService<ILogFactory>())
                     ));
 
-            services.AddTransient
+            services.AddSingleton
                 <INosqlRepo<HealthStatusEntity>, AzureRepo<HealthStatusEntity>>(e =>
                     new AzureRepo<HealthStatusEntity>(
                         AzureTableStorage<HealthStatusEntity>.Create(connectionString, "HealthStatuses", e.GetService<ILogFactory>())
@@ -245,7 +245,7 @@ namespace Lykke.Service.Decred.Api
 
         private Task CleanUp()
         {
-            _healStatusPeriodicalHandler.Start();
+            _healStatusPeriodicalHandler.Stop();
             _healthNotifier?.Notify("Terminating");
 
             _removeOldSpentOutputsPeriodicalHandler.Stop();

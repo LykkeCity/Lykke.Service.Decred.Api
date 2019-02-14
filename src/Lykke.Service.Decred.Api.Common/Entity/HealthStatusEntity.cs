@@ -15,14 +15,12 @@ namespace Lykke.Service.Decred.Api.Common.Entity
             PartitionKey = PartitionKeyDefaultValue;
             RowKey = RowKeyDefaultValue;
 
-            HealthIssues = Enumerable.Empty<HealthIssue>().ToArray();
+            HealthIssues = Array.Empty<HealthIssue>();
         }
 
         [JsonValueSerializer]
         public HealthIssue[] HealthIssues { get; set; }
-
-        public DateTime Updated { get; set; }
-
+        
         public class HealthIssue
         {
             public string Type { get; set; }
