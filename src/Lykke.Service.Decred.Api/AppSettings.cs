@@ -42,10 +42,11 @@ namespace Lykke.Service.Decred.Api
         public AssetConfig Asset { get; set; }
         public DcrdSettings Dcrd { get; set; }
         public DbSettings Db { get; set; }
-
         [Optional] public TimeSpan SpentOutputsExpiration { get; set; } = TimeSpan.FromDays(1);
 
         [Optional] public TimeSpan SpentOutputsExpirationTimerPeriod { get; set; } = TimeSpan.FromMinutes(10);
+        [Optional]
+        public TimeSpan UpdateHealthStatusTimerPeriod { get; set; } = TimeSpan.FromSeconds(30);
     }
     
     public class SlackNotificationsSettings

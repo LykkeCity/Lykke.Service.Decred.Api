@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Lykke.Common.Health;
 
@@ -8,6 +9,7 @@ namespace Lykke.Service.Decred.Api.Common.Services
     public interface IHealthService
     {
         string GetHealthViolationMessage();
-        Task<IEnumerable<HealthIssue>> GetHealthIssuesAsync();
+        Task<(DateTime updated, IEnumerable<HealthIssue> issues)> GetHealthStatusAsync();
+        Task UpdateHealthStatus();
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System;
+using Lykke.AzureStorage.Tables;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Lykke.Service.Decred.Api.Common.Entity
 {
-    public class UnsignedTransactionEntity : TableEntity
+    public class UnsignedTransactionEntity : AzureTableEntity
     {
         private Guid _operationId;
 
