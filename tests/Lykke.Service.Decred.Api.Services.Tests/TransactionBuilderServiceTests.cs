@@ -1,10 +1,14 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DcrdClient;
 using Decred.BlockExplorer;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.Decred.Api.Common;
+using Lykke.Service.Decred.Api.Common.Domain;
 using Lykke.Service.Decred.Api.Common.Entity;
+using Lykke.Service.Decred.Api.Repository;
+using Lykke.Service.Decred.Api.Repository.SpentOutputs;
 using Moq;
 using NDecred.Common;
 using Paymetheus.Decred;
@@ -16,11 +20,13 @@ namespace Lykke.Service.Decred.Api.Services.Test
     {
         private readonly Mock<ITransactionRepository> _mockTxRepo;
         private readonly Mock<IDcrdClient> _mockDcrdClient;
+        private readonly Mock<ISpentOutputRepository> _spentOutputsRepository;
 
         public TransactionBuilderTests()
         {
             _mockDcrdClient = new Mock<IDcrdClient>();
             _mockTxRepo = new Mock<ITransactionRepository>();
+            _spentOutputsRepository = new Mock<ISpentOutputRepository>();
         }
 
         [Fact]
@@ -46,11 +52,13 @@ namespace Lykke.Service.Decred.Api.Services.Test
             _mockTxRepo.Setup(m => m.GetConfirmedUtxos(fromAddr)).ReturnsAsync(new[]{unspentOutput});
             _mockTxRepo.Setup(m => m.GetMempoolUtxos(fromAddr)).ReturnsAsync(new[]{unspentOutput});
             _mockDcrdClient.Setup(m => m.EstimateFeeAsync(It.IsAny<int>())).ReturnsAsync(0.001m);
+            _spentOutputsRepository.Setup(m => m.GetSpentOutputsAsync(It.IsAny<IEnumerable<Output>>())).ReturnsAsync(Enumerable.Empty<Output>());
 
             var txFeeService = new TransactionFeeService(_mockDcrdClient.Object);
             var subject = new TransactionBuilder(
                 txFeeService,
-                _mockTxRepo.Object
+                _mockTxRepo.Object,
+                _spentOutputsRepository.Object
             );
 
             var request = new BuildSingleTransactionRequest

@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Decred.BlockExplorer;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.Decred.Api.Common;
-using Lykke.Service.Decred.Api.Common.Entity;
+using Lykke.Service.Decred.Api.Common.Domain;
+using Lykke.Service.Decred.Api.Repository;
+using Lykke.Service.Decred.Api.Repository.SpentOutputs;
 using NDecred.Common;
 using Paymetheus.Decred;
 using Paymetheus.Decred.Wallet;
@@ -16,13 +18,16 @@ namespace Lykke.Service.Decred.Api.Services
     {
         private readonly ITransactionFeeService _feeService;
         private readonly ITransactionRepository _txRepo;
+        private readonly ISpentOutputRepository _spentOutputRepository;
 
         public TransactionBuilder(
             ITransactionFeeService feeService,
-            ITransactionRepository txRepo)
+            ITransactionRepository txRepo,
+            ISpentOutputRepository spentOutputRepository)
         {
             _feeService = feeService;
             _txRepo = txRepo;
+            _spentOutputRepository = spentOutputRepository;
         }
 
         /// <summary>
@@ -46,10 +51,15 @@ namespace Lykke.Service.Decred.Api.Services
                 .Select(g => g.First())
                 .ToArray();
 
+            // Remove already spent outputs (based on db storage)
+            var spentoutputs = (await 
+                _spentOutputRepository.GetSpentOutputsAsync(allUtxos.Select(p => new Output(p.Hash, p.OutputIndex)))).ToDictionary(p => p, Output.HashOutputIndexComparer);
+            var notSpentUtxos = allUtxos.Where(p => !spentoutputs.ContainsKey(new Output(p.Hash, p.OutputIndex))).ToList();
+
             // Get all unspent transaction outputs to address
             // and map as inputs to new transaction
             return
-                from output in allUtxos
+                from output in notSpentUtxos
                 let txHash = new Blake256Hash(HexUtil.ToByteArray(output.Hash).Reverse().ToArray())
                 let outpoint = new Transaction.OutPoint(txHash, output.OutputIndex, output.Tree)
                 group new {outpoint, output}
@@ -165,6 +175,9 @@ namespace Lykke.Service.Decred.Api.Services
                 expiry
             );
 
+            await _spentOutputRepository.InsertSpentOutputsAsync(request.OperationId,
+                consumedInputs.Select(p => new Output(p.PreviousOutpoint.Hash.ToString(), p.PreviousOutpoint.Index)));
+            
             return new BuildTransactionResponse
             {
                 TransactionContext = HexUtil.FromByteArray(newTx.Serialize())
