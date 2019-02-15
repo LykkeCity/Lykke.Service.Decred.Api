@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
+using Lykke.AzureStorage.Tables;
 using Lykke.Service.Decred.Api.Common;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Lykke.Service.Decred.Api.Repository
 {
-    public class AzureRepo<T> : INosqlRepo<T> where T : TableEntity, new()
+    public class AzureRepo<T> : INosqlRepo<T> where T : AzureTableEntity, new()
     {
         private const int RecordNotFoundStatus = 404;
         private const int DuplicateRecordStatus = 409;

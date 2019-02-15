@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using Lykke.AzureStorage.Tables;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Lykke.Service.Decred.Api.Common.Entity
 {
@@ -8,7 +9,7 @@ namespace Lykke.Service.Decred.Api.Common.Entity
         Outgoing = 1
     }
 
-    public class ObservableAddressEntity : TableEntity
+    public class ObservableAddressEntity : AzureTableEntity
     {
         private string _address;
 
