@@ -117,7 +117,7 @@ namespace Lykke.Service.Decred.Api.Services
             // If the tx has been included in a block,
             // use the block height + timestamp from the block
             var txBlockHeight = knownTx?.BlockHeight ?? safeBlockHeight;
-            var timestamp = knownTx == null ? DateTime.UtcNow : DateTimeOffset.FromUnixTimeSeconds(knownTx.BlockTime).UtcDateTime;
+            var timestamp = knownTx?.BlockTime.UtcDateTime ?? DateTime.UtcNow;
 
             return new BroadcastedSingleTransactionResponse
             {
