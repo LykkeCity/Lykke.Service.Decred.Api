@@ -7,7 +7,7 @@
     <Content Include="data/*" CopyToPublishDirectory="Always" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Decred.Common" Version="1.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Paymetheus.Decred" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
